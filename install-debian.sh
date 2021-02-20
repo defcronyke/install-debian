@@ -1,11 +1,22 @@
 #!/bin/bash
+# Copyright (c) 2021 Jeremy Carter <jeremy@jeremycarter.ca>
+#
+# Released under these license terms (MIT License):
+# https://gitlab.com/defcronyke/install-debian/-/blob/master/LICENSE
+#
+# If you don't agree to follow these terms, you 
+# aren't allowed to use this software.
+#
+# Install Debian
+# An unofficial Debian installer. Use at your own risk.
+#
 
 install_debian() {
 	echo "Installing Debian."
 
 	WORKDIR="${WORKDIR:-"${PWD}/install-debian"}"
 	DEBOOTSTRAP_LOCATION="${DEBOOTSTRAP_LOCATION:-"https://deb.debian.org/debian/pool/main/d/debootstrap/"}"
-	TARGET_MIRROR="${TARGET_MIRROR:-"http://deb.debian.org/debian/"}"
+	TARGET_MIRROR="${TARGET_MIRROR:-""}"
 	TARGET_SCRIPT="${TARGET_SCRIPT:-""}"
 	TARGET_ARCH="${TARGET_ARCH:-"amd64"}"
 	TARGET_DIR="${TARGET_DIR:-"${WORKDIR}/debian-chroot"}"
@@ -66,12 +77,12 @@ install_debian() {
 	cd "$DEBOOTSTRAP_DIR"
 
 	if [ ! -f "$TARGET_PACKAGES_ARCHIVE" ]; then
-		./debootstrap --keep-debootstrap-dir --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_PACKAGES_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
+		./debootstrap --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_PACKAGES_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
 	else
 		echo "Already created \"$(basename $TARGET_PACKAGES_ARCHIVE)\". Skipping."
 	fi
 
-       	sudo -E ./debootstrap --verbose --keep-debootstrap-dir --arch="$TARGET_ARCH" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
+	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
 
 	return_code=$?
 
@@ -85,9 +96,9 @@ install_debian() {
 
 exit_install_debian() {
 	if [ $1 -ne 0 ]; then
-	        echo "Installing Debian failed with exit code: $1"
+		echo "Installing Debian failed with exit code: $1"
 	else
-	        echo "Installing Debian succeeded."
+		echo "Installing Debian succeeded."
 	fi
 
 	return $1
