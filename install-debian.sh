@@ -25,6 +25,7 @@ install_debian() {
 	TARGET_PACKAGES_ARCHIVE="${TARGET_PACKAGES_ARCHIVE:-"${TARGET_DIR}.tar.gz"}"
 	TARGET_PACKAGES="${TARGET_PACKAGES:-""}"
 	TARGET_TASKS="${TARGET_TASKS:-"desktop xfce-desktop ssh-server laptop"}"
+	TARGET_LOCALE="${TARGET_LOCALE:-"en_US.UTF-8 UTF-8"}"
 
 	# This var is used by debootstrap internally.
 	# You probably shouldn't change it.
@@ -42,6 +43,7 @@ install_debian() {
 	echo "TARGET_PACKAGES_ARCHIVE=\"$TARGET_PACKAGES_ARCHIVE\""
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
 	echo "TARGET_TASKS=\"$TARGET_TASKS\""
+	echo "TARGET_LOCALE=\"$TARGET_LOCALE\""
 	#echo "=\"$\""
 
 	sudo chown "${USER}:$(id -gn)" "${PWD}"
@@ -97,7 +99,10 @@ install_debian() {
 	sudo mount -t sysfs /sys "${TARGET_DIR}/sys/"
 	sudo mount -o bind /dev "${TARGET_DIR}/dev/"
 
-	sudo chroot "$TARGET_DIR" /bin/bash -c 'apt-get update && apt-get install locales && dpkg-reconfigure locales'
+	sudo sed -i -e "s/# ${TARGET_LOCALE}/${TARGET_LOCALE}/" "${TARGET_DIR}/etc/locale.gen"
+	echo "LANG=\"$(echo ${TARGET_LOCALE} | cut -d' ' -f1)\"" | sudo tee /etc/default/locale
+
+	sudo chroot "$TARGET_DIR" /bin/bash -c "apt-get update && apt-get install locales && dpkg-reconfigure -f noninteractive locales && update-locale LANG=\"$(echo ${TARGET_LOCALE} | cut -d' ' -f1)\""
 
 	sudo chroot "$TARGET_DIR" /bin/bash -c 'apt-get upgrade -y && apt-get dist-upgrade -y && apt-get autoremove -y'
 	
