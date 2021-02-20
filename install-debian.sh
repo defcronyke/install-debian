@@ -44,6 +44,9 @@ install_debian() {
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
 	#echo "=\"$\""
 
+	sudo chown "$USER:$(id -gn)" "$WORKDIR/.."
+	sudo chmod 755 "$WORKDIR/.."
+
 	which wget >/dev/null
 
 	if [ $? -ne 0 ]; then
