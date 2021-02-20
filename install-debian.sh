@@ -22,10 +22,9 @@ install_debian() {
 	TARGET_SCRIPT="${TARGET_SCRIPT:-""}"
 	TARGET_ARCH="${TARGET_ARCH:-"amd64"}"
 	TARGET_DIR="${TARGET_DIR:-"${WORKDIR}/debian-chroot"}"
-	# TARGET_PACKAGES_DIR="${TARGET_PACKAGES_DIR:-"${WORKDIR}/debian-packages"}"
 	TARGET_PACKAGES_ARCHIVE="${TARGET_PACKAGES_ARCHIVE:-"${TARGET_DIR}.tar.gz"}"
-	TARGET_PACKAGES="${TARGET_PACKAGES:-"xfce4 xfce4-goodies"}"
-	# TARGET_PACKAGES="${TARGET_PACKAGES:-""}"
+	TARGET_PACKAGES="${TARGET_PACKAGES:-""}"
+	TARGET_TASKS="${TARGET_TASKS:-"desktop xfce-desktop ssh-server laptop"}"
 
 	# This var is used by debootstrap internally.
 	# You probably shouldn't change it.
@@ -40,9 +39,9 @@ install_debian() {
 	echo "TARGET_ARCH=\"$TARGET_ARCH\""
 	echo "TARGET_DIR=\"$TARGET_DIR\""
 	echo "TARGET_RELEASE=\"$TARGET_RELEASE\""
-	# echo "TARGET_PACKAGES_DIR=\"$TARGET_PACKAGES_DIR\""
 	echo "TARGET_PACKAGES_ARCHIVE=\"$TARGET_PACKAGES_ARCHIVE\""
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
+	echo "TARGET_TASKS=\"$TARGET_TASKS\""
 	#echo "=\"$\""
 
 	sudo chown "${USER}:$(id -gn)" "${PWD}"
@@ -83,12 +82,24 @@ install_debian() {
 	cd "$DEBOOTSTRAP_DIR"
 
 	if [ ! -f "$TARGET_PACKAGES_ARCHIVE" ]; then
-		./debootstrap --verbose --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" $TARGET_MIRROR $TARGET_SCRIPT
+		./debootstrap --verbose --arch="$TARGET_ARCH" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" $TARGET_MIRROR $TARGET_SCRIPT
 	else
 		echo "Already created \"$(basename $TARGET_PACKAGES_ARCHIVE)\". Skipping."
 	fi
 
-	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" $TARGET_MIRROR $TARGET_SCRIPT
+	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" $TARGET_MIRROR $TARGET_SCRIPT
+
+	if [ ! -z "$TARGET_PACKAGES" ]; then
+		echo "Installing tasks with tasksel: $TARGET_TASKS"
+		sudo chroot "$TARGET_DIR" tasksel install "$TARGET_TASKS"
+	fi
+
+	sudo chroot "$TARGET_DIR" "apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get autoremove -y"
+
+	if [ ! -z "$TARGET_PACKAGES" ]; then
+		echo "Installing extra packages: $TARGET_PACKAGES"
+		sudo chroot "$TARGET_DIR" "apt-get install -y $TARGET_PACKAGES"
+	fi
 
 	return_code=$?
 
