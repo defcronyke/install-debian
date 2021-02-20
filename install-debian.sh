@@ -87,7 +87,11 @@ install_debian() {
 		echo "Already created \"$(basename $TARGET_PACKAGES_ARCHIVE)\". Skipping."
 	fi
 
-	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" $TARGET_MIRROR $TARGET_SCRIPT
+	if [ ! -d "$TARGET_DIR" ]; then
+		sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" $TARGET_MIRROR $TARGET_SCRIPT
+	else
+		echo "Already created \"$(basename $TARGET_DIR)\". Skipping."
+	fi
 
 	if [ ! -z "$TARGET_PACKAGES" ]; then
 		echo "Installing tasks with tasksel: $TARGET_TASKS"
