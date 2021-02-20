@@ -97,12 +97,14 @@ install_debian() {
 	sudo mount -t sysfs /sys "${TARGET_DIR}/sys/"
 	sudo mount -o bind /dev "${TARGET_DIR}/dev/"
 
+	sudo chroot "$TARGET_DIR" /bin/bash -c 'apt-get update && apt-get install locales && dpkg-reconfigure locales'
+
+	sudo chroot "$TARGET_DIR" /bin/bash -c 'apt-get upgrade -y && apt-get dist-upgrade -y && apt-get autoremove -y'
+	
 	if [ ! -z "$TARGET_TASKS" ]; then
 		echo "Installing tasks with tasksel: $TARGET_TASKS"
 		sudo chroot "$TARGET_DIR" tasksel install "$TARGET_TASKS"
 	fi
-
-	sudo chroot "$TARGET_DIR" /bin/bash -c 'apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get autoremove -y'
 
 	if [ ! -z "$TARGET_PACKAGES" ]; then
 		echo "Installing extra packages: $TARGET_PACKAGES"
