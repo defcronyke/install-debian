@@ -99,6 +99,7 @@ install_debian() {
 	sudo mount -t sysfs /sys "${TARGET_DIR}/sys/"
 	sudo mount -o bind /dev "${TARGET_DIR}/dev/"
 
+	sudo sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" "${TARGET_DIR}/etc/locale.gen"
 	sudo sed -i -e "s/# ${TARGET_LOCALE}/${TARGET_LOCALE}/" "${TARGET_DIR}/etc/locale.gen"
 	echo "LANG=\"$(echo ${TARGET_LOCALE} | cut -d' ' -f1)\"" | sudo tee /etc/default/locale
 
