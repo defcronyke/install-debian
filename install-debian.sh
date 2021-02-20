@@ -31,7 +31,7 @@ install_debian() {
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
 	#echo "=\"$\""
 
-	which wget
+	which wget >/dev/null
 
 	if [ $? -ne 0 ]; then
 		sudo apt-get update && sudo apt-get install -y wget 
