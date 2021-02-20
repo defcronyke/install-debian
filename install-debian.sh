@@ -24,7 +24,8 @@ install_debian() {
 	TARGET_DIR="${TARGET_DIR:-"${WORKDIR}/debian-chroot"}"
 	TARGET_PACKAGES_DIR="${TARGET_PACKAGES_DIR:-"${WORKDIR}/debian-packages"}"
 	TARGET_PACKAGES_ARCHIVE="${TARGET_PACKAGES_ARCHIVE:-"${TARGET_PACKAGES_DIR}.tar.gz"}"
-	TARGET_PACKAGES="${TARGET_PACKAGES:-"xfce4 xfce4-goodies"}"
+	TARGET_PACKAGES="${TARGET_PACKAGES:-""}"
+	# TARGET_PACKAGES="${TARGET_PACKAGES:-"xfce4 xfce4-goodies"}"
 
 	# This var is used by debootstrap internally.
 	# You probably shouldn't change it.
