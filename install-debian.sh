@@ -31,6 +31,13 @@ install_debian() {
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
 	#echo "=\"$\""
 
+	which wget || \
+	sudo apt-get update && sudo apt-get install -y wget || \
+	sudo pacman -Sy && sudo pacman -S wget || \
+	sudo dnf update && sudo dnf install wget || \
+	echo "error: Failed installing wget. You need wget in your \$PATH for this to work. Exiting." && \
+	return 254
+
 	# Enter the $WORKDIR.
 	pwd="$PWD"
 
@@ -85,4 +92,3 @@ trap cancel_install_debian INT
 install_debian $@
 
 exit_install_debian $?
-
