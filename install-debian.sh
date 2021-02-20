@@ -31,12 +31,24 @@ install_debian() {
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
 	#echo "=\"$\""
 
-	which wget || \
-	sudo apt-get update && sudo apt-get install -y wget || \
-	sudo pacman -Sy && sudo pacman -S wget || \
-	sudo dnf update && sudo dnf install wget || \
-	echo "error: Failed installing wget. You need wget in your \$PATH for this to work. Exiting." && \
-	return 254
+	which wget
+
+	if [ $? -ne 0 ]; then
+		sudo apt-get update && sudo apt-get install -y wget 
+	fi
+	
+	if [ $? -ne 0 ]; then
+		sudo pacman -Sy && sudo pacman --noconfirm -S wget
+	fi
+
+	if [ $? -ne 0 ]; then
+		sudo dnf update && sudo dnf install wget
+	fi
+	
+	if [ $? -ne 0 ]; then
+		echo "error: Failed installing wget. You need wget in your \$PATH for this to work. Exiting." && \
+		return 254
+	fi
 
 	# Enter the $WORKDIR.
 	pwd="$PWD"
