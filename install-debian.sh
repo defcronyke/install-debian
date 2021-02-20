@@ -44,8 +44,8 @@ install_debian() {
 	echo "TARGET_PACKAGES=\"$TARGET_PACKAGES\""
 	#echo "=\"$\""
 
-	sudo chown "$USER:$(id -gn)" "$WORKDIR/.."
-	sudo chmod 755 "$WORKDIR/.."
+	sudo chown "${USER}:$(id -gn)" "${PWD}"
+	sudo chmod 755 "${PWD}"
 
 	which wget >/dev/null
 
