@@ -25,7 +25,7 @@ install_debian() {
 	# TARGET_PACKAGES_DIR="${TARGET_PACKAGES_DIR:-"${WORKDIR}/debian-packages"}"
 	TARGET_PACKAGES_ARCHIVE="${TARGET_PACKAGES_ARCHIVE:-"${TARGET_DIR}.tar.gz"}"
 	TARGET_PACKAGES="${TARGET_PACKAGES:-""}"
-	# TARGET_PACKAGES="${TARGET_PACKAGES:-"xfce4 xfce4-goodies"}"
+	# TARGET_PACKAGES="${TARGET_PACKAGES:-"--include=\"xfce4 xfce4-goodies\""}"
 
 	# This var is used by debootstrap internally.
 	# You probably shouldn't change it.
@@ -83,12 +83,12 @@ install_debian() {
 	cd "$DEBOOTSTRAP_DIR"
 
 	if [ ! -f "$TARGET_PACKAGES_ARCHIVE" ]; then
-		./debootstrap --verbose --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
+		./debootstrap --verbose --arch="$TARGET_ARCH" "$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
 	else
 		echo "Already created \"$(basename $TARGET_PACKAGES_ARCHIVE)\". Skipping."
 	fi
 
-	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
+	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" "$TARGET_PACKAGES" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
 
 	return_code=$?
 
