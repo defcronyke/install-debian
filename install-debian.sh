@@ -93,19 +93,27 @@ install_debian() {
 		echo "Already created \"$(basename $TARGET_DIR)\". Skipping."
 	fi
 
-	if [ ! -z "$TARGET_PACKAGES" ]; then
+	sudo mount -t proc /proc "${TARGET_DIR}/proc/"
+	sudo mount -t sysfs /sys "${TARGET_DIR}/sys/"
+	sudo mount -o bind /dev "${TARGET_DIR}/dev/"
+
+	if [ ! -z "$TARGET_TASKS" ]; then
 		echo "Installing tasks with tasksel: $TARGET_TASKS"
 		sudo chroot "$TARGET_DIR" tasksel install "$TARGET_TASKS"
 	fi
 
-	sudo chroot "$TARGET_DIR" "apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get autoremove -y"
+	sudo chroot "$TARGET_DIR" /bin/bash -c 'apt-get update && apt-get upgrade -y && apt-get dist-upgrade -y && apt-get autoremove -y'
 
 	if [ ! -z "$TARGET_PACKAGES" ]; then
 		echo "Installing extra packages: $TARGET_PACKAGES"
-		sudo chroot "$TARGET_DIR" "apt-get install -y $TARGET_PACKAGES"
+		sudo chroot "$TARGET_DIR" apt-get install -y "$TARGET_PACKAGES"
 	fi
 
 	return_code=$?
+
+	sudo umount "${TARGET_DIR}/proc/"
+	sudo umount "${TARGET_DIR}/sys/"
+	sudo umount "${TARGET_DIR}/dev/"
 
 	cd ..
 
@@ -127,6 +135,11 @@ exit_install_debian() {
 
 cancel_install_debian() {
 	echo "Debian install cancelled. Cleaning up."
+
+	sudo umount "${TARGET_DIR}/proc/"
+	sudo umount "${TARGET_DIR}/sys/"
+	sudo umount "${TARGET_DIR}/dev/"
+
 	exit_install_debian 255
 	exit $?
 }
