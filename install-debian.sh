@@ -83,12 +83,12 @@ install_debian() {
 	cd "$DEBOOTSTRAP_DIR"
 
 	if [ ! -f "$TARGET_PACKAGES_ARCHIVE" ]; then
-		./debootstrap --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_PACKAGES_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
+		./debootstrap --verbose --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --make-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_PACKAGES_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
 	else
 		echo "Already created \"$(basename $TARGET_PACKAGES_ARCHIVE)\". Skipping."
 	fi
 
-	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
+	sudo -E ./debootstrap --verbose --arch="$TARGET_ARCH" --include="$TARGET_PACKAGES" --unpack-tarball="$TARGET_PACKAGES_ARCHIVE" "$TARGET_RELEASE" "$TARGET_DIR" "$TARGET_MIRROR" "$TARGET_SCRIPT"
 
 	return_code=$?
 
