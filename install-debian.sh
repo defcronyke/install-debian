@@ -15,13 +15,14 @@ install_debian() {
 	echo "Installing Debian."
 
 	WORKDIR="${WORKDIR:-"${PWD}/install-debian"}"
+	TARGET_RELEASE="${TARGET_RELEASE:-"stable"}"
+	DEBOOTSTRAP_VERSION="${DEBOOTSTRAP_VERSION:-$(curl -s "https://packages.debian.org/${TARGET_RELEASE}/debootstrap" | grep "debootstrap (.*)" | sed -E 's/.*\((.+)\).*/\1/')}"
 	DEBOOTSTRAP_LOCATION="${DEBOOTSTRAP_LOCATION:-"https://deb.debian.org/debian/pool/main/d/debootstrap/"}"
 	TARGET_MIRROR="${TARGET_MIRROR:-""}"
 	TARGET_SCRIPT="${TARGET_SCRIPT:-""}"
 	TARGET_ARCH="${TARGET_ARCH:-"amd64"}"
 	TARGET_DIR="${TARGET_DIR:-"${WORKDIR}/debian-chroot"}"
-	TARGET_RELEASE="${TARGET_RELEASE:-"stable"}"
-	TARGET_PACKAGES_DIR=${TARGET_PACKAGES_DIR:-"${WORKDIR}/debian-packages"}
+	TARGET_PACKAGES_DIR="${TARGET_PACKAGES_DIR:-"${WORKDIR}/debian-packages"}"
 	TARGET_PACKAGES_ARCHIVE="${TARGET_PACKAGES_ARCHIVE:-"${TARGET_PACKAGES_DIR}.tar.gz"}"
 	TARGET_PACKAGES="${TARGET_PACKAGES:-"xfce4 xfce4-goodies"}"
 
@@ -30,6 +31,7 @@ install_debian() {
 	export DEBOOTSTRAP_DIR=${DEBOOTSTRAP_DIR:-"${WORKDIR}/debootstrap"}
 
 	echo "WORKDIR=\"$PWD\""
+	echo "DEBOOTSTRAP_VERSION=\"$DEBOOTSTRAP_VERSION\""
 	echo "DEBOOTSTRAP_LOCATION=\"$DEBOOTSTRAP_LOCATION\""
 	echo "DEBOOTSTRAP_DIR=\"$DEBOOTSTRAP_DIR\""
 	echo "TARGET_MIRROR=\"$TARGET_MIRROR\""
@@ -69,7 +71,7 @@ install_debian() {
 	cd "$WORKDIR"
 
 	if [ ! -d "$DEBOOTSTRAP_DIR" ]; then
-		curl -sL "$(curl -s "$DEBOOTSTRAP_LOCATION" | grep -o "\"debootstrap.*tar.gz\"" | tr -d '"' | sed -E "s@^(.+)\$@$DEBOOTSTRAP_LOCATION\1@" | tail -n 1)" | tar zxvf - 
+		curl -sL "$(curl -s "$DEBOOTSTRAP_LOCATION" | grep -o "\"debootstrap_${DEBOOTSTRAP_VERSION}.tar.gz\"" | tr -d '"' | sed -E "s@^(.+)\$@$DEBOOTSTRAP_LOCATION\1@" | tail -n 1)" | tar zxvf - 
 	else
 		echo "Already downloaded debootstrap. Skipping."
 	fi
